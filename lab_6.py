@@ -6,13 +6,14 @@ import concurrent.futures
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import threading
+import sys
 
 
 # function to generate array of random numbers of given size
 def generate_array(arr, size):
 
     for i in range(size):
-        arr.append(random.randint(1, 100000))
+        arr.append(random.randint(1, 10000000))
 
 
 # Selection Sort
@@ -145,7 +146,6 @@ def run_tests(test_sizes, functions, time_result, app):
             functions = [quick_sort, merge_sort, counting_sort]
         array = []
         generate_array(array, size)
-        print(f"Size: {size}")
 
         with concurrent.futures.ProcessPoolExecutor() as executor:
             args = [(f, array) for f in functions]
@@ -153,7 +153,6 @@ def run_tests(test_sizes, functions, time_result, app):
 
             for f in concurrent.futures.as_completed(results):
                 result, name = f.result()
-                print(f'time: {result} seconds function: {name}')
                 time_result[name].append(result)
                 app.plot_data(time_result)
                 app.fill_treeview()
@@ -167,6 +166,7 @@ class Application(tk.Tk):
 
         self.array = []
         self.test_sizes = [1024, 4096, 16384, 65536, 262144, 1048576, 4194304]
+
         self.time_result = {selection_sort.__name__: [], shell_sort.__name__: [], quick_sort.__name__: [],
                             merge_sort.__name__: [], counting_sort.__name__: []}
         self.functions = [selection_sort, shell_sort, quick_sort, merge_sort, counting_sort]
@@ -197,6 +197,8 @@ class Application(tk.Tk):
         self.treeview = ttk.Treeview(self.treeview_frame, show="headings", height=5)
 
         self.configure_treeview_frame_layout()
+
+        self.protocol("WM_DELETE_WINDOW", sys.exit)
 
         self.mainloop()
 
@@ -281,6 +283,3 @@ class Application(tk.Tk):
 
 if __name__ == '__main__':
     Application()
-
-
-
